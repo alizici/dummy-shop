@@ -8,6 +8,16 @@ survives bad networks, and tests that prove each of those.
 |---|---|---|
 | `emilys` / `emilyspass` (one-tap test account button), validation, wrong-password and offline messages, "session expired" note | first-load loader, error with retry, empty state, pull to refresh, infinite scroll with prefetch, retry under the list, sign out | shows what the list already knew instantly, loads the rest (gallery, description, shipping, tags, reviews), inline retry |
 
+## Demo
+
+[![The app on the left, every API call it makes on the right](docs/demo/poster.jpg)](docs/demo/dummy-shop-demo.mp4)
+
+[Watch the demo](docs/demo/dummy-shop-demo.mp4) (1:45, no sound). It covers sign in, pagination, an expired token (refresh
+and retry), no connection, pull to refresh, the detail page, restart and sign out. The app is on the left, and each API
+call appears live on the right. I recorded it from a web build of the same code at phone size. The expired token
+and the lost connection are simulated and labelled as such. The same calls are listed in
+[docs/demo/requests.md](docs/demo/requests.md).
+
 ## Run
 
 ```bash
