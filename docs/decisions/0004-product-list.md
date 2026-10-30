@@ -27,13 +27,16 @@ replaces the list; then page 2 lands and is appended to the refreshed list, givi
   that button (`isRetry: true`) loads again; requests queued before the failure don't retry on their own.
 - **`ProductsRefreshed` carries a `Completer`**, completed when the refresh is over, so `RefreshIndicator` spins
   exactly as long as the work.
-- **Prefetch:** the next page is requested 600 px before the end. A short first page that doesn't fill the screen
-  asks for more after layout, since no scroll event would ever come.
+- **Prefetch by built items, not scroll offsets:** the next page is requested when one of the last 5 items is
+  built (the list builds a little ahead of the screen), so scrolling rarely reaches the loader. A short first page
+  asks for more the same way. An earlier version compared scroll offsets; recording the demo showed that a page
+  landing mid-drag let it read the new items against the old extent and request one page too many.
 
 ## Consequences
 
 - `products_bloc_test` answers the refresh before the page on purpose; with concurrent handling that test fails
   (checked by removing `sequential()`). Other tests cover a page with nothing new, an empty page under an
-  over-reported total, and a request queued before a failure.
+  over-reported total, a request queued before a failure, and a page that lands mid-drag (widget test, plus a
+  check in a real browser while recording the demo).
 - A refresh during a slow page waits for it. On a list this size that's acceptable and predictable; on an expensive
   feed I'd cancel the page instead (`restartable` for refresh, with the list replaced atomically).

@@ -7,7 +7,7 @@ question to the client before or during the work.
 |---|---|---|---|
 | 1 | The task says `GET /products`; DummyJSON also has `/auth/products`, which requires the token. Which one? | `GET /products`, as written. It goes through the authorized client anyway, so switching is a one-line path change. | `products_repository.dart` |
 | 2 | How long should a session last? | Access token asked for 30 minutes (`expiresInMins`), refreshed 60 s before expiry and after a 401. | `auth_api.dart`, `session_manager.dart` |
-| 3 | Page size? | 20, with prefetch 600 px before the end. | `products_repository.dart`, `products_page.dart` |
+| 3 | Page size? | 20; the next page is requested when one of the last 5 items is built. | `products_repository.dart`, `products_page.dart` |
 | 4 | Sign-out on the server? | DummyJSON has no logout endpoint; sign-out clears the tokens locally and disposes the user's screens. | `auth_repository.dart` |
 | 5 | What should the app do when it starts offline with a stored session? | Stay signed in and show the list's error state, instead of signing the user out. | `auth_repository.dart` (`UnverifiedSession`) |
 | 6 | Platforms? | iOS and Android. Web would need a different answer for "store the token securely" (no Keychain in a browser). | `ios/`, `android/` |

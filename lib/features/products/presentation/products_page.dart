@@ -104,54 +104,46 @@ class _ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<_ProductList> {
-  final _scroll = ScrollController();
+  /// Ask for the next page once one of the last few items is about to be shown
+  /// (the list builds items a little ahead of the screen), so scrolling rarely
+  /// reaches the loader.
+  ///
+  /// This is driven by which items get built, not by scroll offsets: a page
+  /// that lands mid-drag updates the bloc before the list is laid out again,
+  /// and an offset check at that moment reads the new items against the old
+  /// extent and asks for one page too many.
+  static const _prefetchItems = 5;
 
-  /// Start loading the next page this far before the end, so scrolling
-  /// rarely reaches the loader.
-  static const _prefetchExtent = 600.0;
+  bool _requestScheduled = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _scroll.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_scroll.hasClients) return;
-    final position = _scroll.position;
-    if (position.maxScrollExtent - position.pixels <= _prefetchExtent) _requestNextPage();
-  }
-
-  void _requestNextPage() {
-    final bloc = context.read<ProductsBloc>();
-    final state = bloc.state;
-    if (state.isLoadingMore || state.hasReachedEnd || state.loadMoreFailure != null) return;
-    bloc.add(ProductsNextPageRequested(state.nextSkip));
+  /// [nextSkip] is the offset the built items belong to. The request goes out
+  /// after the frame (no bloc events during build), and the bloc ignores it if
+  /// the list has moved on in the meantime.
+  void _nearEnd(int nextSkip) {
+    if (_requestScheduled) return;
+    _requestScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestScheduled = false;
+      if (!mounted) return;
+      final bloc = context.read<ProductsBloc>();
+      final state = bloc.state;
+      if (state.isLoadingMore || state.hasReachedEnd || state.loadMoreFailure != null) return;
+      bloc.add(ProductsNextPageRequested(nextSkip));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<ProductsBloc>().state;
-    // A short first page may not fill the screen, so no scroll event would
-    // ever ask for more. Check once the frame is laid out.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _onScroll();
-    });
 
     return ListView.builder(
       key: const Key('products.list'),
-      controller: _scroll,
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: state.items.length + 1,
       itemBuilder: (context, index) {
         if (index < state.items.length) {
+          if (index >= state.items.length - _prefetchItems) _nearEnd(state.nextSkip);
           final product = state.items[index];
           return ProductTile(
             key: ValueKey(product.id),

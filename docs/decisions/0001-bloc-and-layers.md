@@ -29,7 +29,7 @@ client app that grows and that someone else will maintain with me.
 
 ## Consequences
 
-- Blocs, the session and the API layer are tested without a widget tree (most of the 149 tests run in
+- Blocs, the session and the API layer are tested without a widget tree (most of the 150 tests run in
   milliseconds).
 - Adding a feature means the same three folders; the architecture test tells a newcomer when an import is wrong.
 - Some ceremony for small screens; Cubits keep it down.

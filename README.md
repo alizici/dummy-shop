@@ -13,7 +13,7 @@ survives bad networks, and tests that prove each of those.
 ```bash
 flutter pub get
 flutter run            # iOS or Android
-flutter test           # 149 tests, ~25 s
+flutter test           # 150 tests, ~25 s
 flutter analyze
 ```
 
@@ -70,7 +70,8 @@ Fixtures in `test/fixtures` are real DummyJSON responses (`tool/refresh_fixtures
 To check that the tests catch real bugs, I broke the code on purpose in 17 places: dropped the single-flight
 refresh, let a refresh finish after sign-out, removed the sequential event handling, paged by list length instead of
 server offset, treated DummyJSON's `403` refresh rejection as a network error, and so on. Every one was caught by a
-failing test.
+failing test. Recording the demo found one more (a page landing mid-drag requested the next page early); it
+now has its own test and a different trigger.
 
 ## Working with AI
 

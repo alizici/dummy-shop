@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dummy_shop/core/network/api_failure.dart';
 import 'package:dummy_shop/features/auth/bloc/session_cubit.dart';
@@ -97,6 +99,39 @@ void main() {
     await tester.pump();
 
     expect(sentEvents().whereType<ProductsNextPageRequested>().first.nextSkip, 20);
+  });
+
+  testWidgets('a page that lands mid-drag does not trigger the next one early', (tester) async {
+    // Found while recording the demo: a check based on scroll offsets read the
+    // new state (40 items) against the old extent (20 items) and asked for page 3.
+    final states = StreamController<ProductsState>();
+    addTearDown(states.close);
+    whenListen(bloc, states.stream, initialState: loaded(20));
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<SessionCubit>.value(value: session),
+          BlocProvider<ProductsBloc>.value(value: bloc),
+        ],
+        child: const MaterialApp(home: ProductsPage()),
+      ),
+    );
+
+    final gesture = await tester.startGesture(tester.getCenter(find.byKey(const Key('products.list'))));
+    await gesture.moveBy(const Offset(0, -20)); // wins the drag; the first move doesn't scroll
+    await tester.pump();
+    await gesture.moveBy(const Offset(0, -1450));
+    await tester.pump();
+    expect(sentEvents().whereType<ProductsNextPageRequested>().map((e) => e.nextSkip), [20]);
+
+    states.add(loaded(40)); // page 2 lands while the finger is still down...
+    await tester.idle();
+    await gesture.moveBy(const Offset(0, -20)); // ...and moves on before the next frame
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    verifyNever(() => bloc.add(any(that: isA<ProductsNextPageRequested>().having((e) => e.nextSkip, 'nextSkip', 40))));
   });
 
   testWidgets('a failed next page offers a retry under the list', (tester) async {
