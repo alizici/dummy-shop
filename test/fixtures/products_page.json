@@ -1,0 +1,40 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "title": "Essence Mascara Lash Princess",
+            "category": "beauty",
+            "price": 9.99,
+            "discountPercentage": 10.48,
+            "rating": 2.56,
+            "stock": 99,
+            "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/thumbnail.webp",
+            "brand": "Essence"
+        },
+        {
+            "id": 2,
+            "title": "Eyeshadow Palette with Mirror",
+            "category": "beauty",
+            "price": 19.99,
+            "discountPercentage": 18.19,
+            "rating": 2.86,
+            "stock": 34,
+            "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/thumbnail.webp",
+            "brand": "Glamour Beauty"
+        },
+        {
+            "id": 3,
+            "title": "Powder Canister",
+            "category": "beauty",
+            "price": 14.99,
+            "discountPercentage": 9.84,
+            "rating": 4.64,
+            "stock": 89,
+            "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/powder-canister/thumbnail.webp",
+            "brand": "Velvet Touch"
+        }
+    ],
+    "total": 194,
+    "skip": 0,
+    "limit": 3
+}

@@ -1,0 +1,41 @@
+{
+  "_info": [
+    "CODE SHIELD lock list (guardrails/shield.py). Each lock: a file (the whole file is locked), a reason, the tests that protect it and the approved fingerprint.",
+    "The fingerprint is never written by hand: 'python3 guardrails/shield.py approve <name> --reason \"...\"' writes it and logs the change to docs/SHIELD_LOG.md.",
+    "{tests} in a runner command is replaced by the lock's test files."
+  ],
+  "runners": {
+    "flutter": {
+      "run": "flutter test --no-pub {tests}",
+      "cwd": ".",
+      "timeout": 600
+    }
+  },
+  "locks": [
+    {
+      "name": "session-refresh",
+      "file": "lib/core/session/session_manager.dart",
+      "reason": "Single-flight refresh; only a rejected refresh ends the session, a network failure never signs the user out (docs/decisions/0003).",
+      "tests": {
+        "flutter": [
+          "test/core/session_manager_test.dart",
+          "test/core/auth_interceptor_test.dart",
+          "test/features/auth/auth_flow_test.dart"
+        ]
+      },
+      "fingerprint": "b53cfcb4f4026c3a"
+    },
+    {
+      "name": "auth-retry",
+      "file": "lib/core/network/auth_interceptor.dart",
+      "reason": "A 401 refreshes once and retries once; a second 401 is final, so a bad token can't loop (docs/decisions/0003).",
+      "tests": {
+        "flutter": [
+          "test/core/auth_interceptor_test.dart",
+          "test/app_flow_test.dart"
+        ]
+      },
+      "fingerprint": "fae8eae85e15f5d2"
+    }
+  ]
+}

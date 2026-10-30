@@ -1,0 +1,3 @@
+tags:
+  live:
+    skip: "Calls the real DummyJSON API. Run with: flutter test --run-skipped --tags live"
